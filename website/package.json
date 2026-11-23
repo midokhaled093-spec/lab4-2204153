@@ -1,0 +1,12 @@
+{
+  "name": "library-lab4",
+  "version": "1.0.0",
+  "description": "Library website - Lab 4 search pages (Express + MySQL)",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  }
+}

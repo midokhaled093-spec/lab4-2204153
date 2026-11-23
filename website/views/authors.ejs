@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+<h1>Authors and books</h1>
+
+<h2>Number of books per author</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Author</th><th>Country</th><th class="num">Books</th></tr></thead>
+  <tbody>
+    <% authors.forEach(r => { %>
+      <tr><td><%= r.name %></td><td><%= r.country %></td><td class="num"><%= r.books %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+
+<h2>Books whose author and publisher are from the same country</h2>
+<% if (sameCountry.length) { %>
+<div class="scroll"><table>
+  <thead><tr><th>Book</th><th>Author</th><th>Publisher</th><th>Country</th></tr></thead>
+  <tbody>
+    <% sameCountry.forEach(r => { %>
+      <tr><td><%= r.title %></td><td><%= r.author %></td><td><%= r.publisher %></td><td><%= r.country %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<% } else { %><p class="notice">No book has an author and a publisher from the same country.</p><% } %>
+<%- include('partials/footer') %>

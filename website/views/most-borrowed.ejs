@@ -1,0 +1,21 @@
+<%- include('partials/header') %>
+<h1>Most borrowed</h1>
+
+<h2>The 3 books with the most loans</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Book</th><th class="num">Loans</th></tr></thead>
+  <tbody>
+    <% topBooks.forEach(r => { %>
+      <tr><td><%= r.title %></td><td class="num"><%= r.loans %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+
+<h2>The member with the most loans</h2>
+<% if (topMember) { %>
+<div class="scroll"><table>
+  <thead><tr><th>Member</th><th class="num">Loans</th></tr></thead>
+  <tbody><tr><td><%= topMember.name %></td><td class="num"><%= topMember.loans %></td></tr></tbody>
+</table></div>
+<% } else { %><p class="notice">There are no loans yet.</p><% } %>
+<%- include('partials/footer') %>

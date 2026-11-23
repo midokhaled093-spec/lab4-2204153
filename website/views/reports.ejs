@@ -1,0 +1,34 @@
+<%- include('partials/header') %>
+<h1>Reports</h1>
+
+<h2>Books and average price by category</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Category</th><th class="num">Books</th><th class="num">Average price</th></tr></thead>
+  <tbody>
+    <% byCategory.forEach(r => { %>
+      <tr><td><%= r.category %></td><td class="num"><%= r.books %></td>
+          <td class="num"><%= r.average_price === null ? '-' : Number(r.average_price).toFixed(2) %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+
+<h2>Authors with at least 2 books</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Author</th><th class="num">Books</th></tr></thead>
+  <tbody>
+    <% prolific.forEach(r => { %>
+      <tr><td><%= r.name %></td><td class="num"><%= r.books %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+
+<h2>Prices of the whole library</h2>
+<div class="scroll"><table>
+  <thead><tr><th class="num">Total</th><th class="num">Smallest</th><th class="num">Largest</th></tr></thead>
+  <tbody>
+    <tr><td class="num"><%= Number(totals.total_price).toFixed(2) %></td>
+        <td class="num"><%= Number(totals.smallest_price).toFixed(2) %></td>
+        <td class="num"><%= Number(totals.largest_price).toFixed(2) %></td></tr>
+  </tbody>
+</table></div>
+<%- include('partials/footer') %>

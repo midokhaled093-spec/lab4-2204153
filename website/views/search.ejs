@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+<h1>Search books</h1>
+<form method="get" action="/search" class="filters">
+  <label>Title contains
+    <input type="text" name="keyword" value="<%= form.keyword %>" placeholder="e.g. alley">
+  </label>
+  <label>Minimum price
+    <input type="number" name="min" min="0" step="0.01" value="<%= form.min %>">
+  </label>
+  <label>Maximum price
+    <input type="number" name="max" min="0" step="0.01" value="<%= form.max %>">
+  </label>
+  <label>Category
+    <select name="category">
+      <option value="">All categories</option>
+      <% categories.forEach(c => { %>
+        <option value="<%= c.category_id %>" <%= String(c.category_id) === form.category ? 'selected' : '' %>><%= c.name %></option>
+      <% }) %>
+    </select>
+  </label>
+  <button type="submit">Search</button>
+</form>
+
+<% if (error) { %>
+  <p class="notice error"><%= error %></p>
+<% } else if (searched) { %>
+  <p class="count"><%= books.length %> <%= books.length === 1 ? 'book' : 'books' %> found, cheapest first.</p>
+  <% if (books.length) { %>
+  <div class="scroll"><table>
+    <thead><tr><th>ID</th><th>Title</th><th>Category</th><th class="num">Price</th></tr></thead>
+    <tbody>
+      <% books.forEach(b => { %>
+        <tr><td><%= b.book_id %></td><td><%= b.title %></td><td><%= b.category %></td><td class="num"><%= b.price.toFixed(2) %></td></tr>
+      <% }) %>
+    </tbody>
+  </table></div>
+  <% } else { %>
+    <p class="notice">No book matches. Try a shorter keyword or a wider price range.</p>
+  <% } %>
+<% } else { %>
+  <p class="notice">Fill in any of the fields and select Search. Empty fields are ignored.</p>
+<% } %>
+<%- include('partials/footer') %>

@@ -1,0 +1,40 @@
+<%- include('partials/header') %>
+<h1>Loans</h1>
+
+<h2>Not returned yet</h2>
+<% if (open.length) { %>
+<div class="scroll"><table>
+  <thead><tr><th>Loan</th><th>Book</th><th>Member</th><th>Borrowed on</th></tr></thead>
+  <tbody>
+    <% open.forEach(r => { %>
+      <tr><td><%= r.loan_id %></td><td><%= r.title %></td><td><%= r.member %></td>
+          <td><%= r.loan_date %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<% } else { %><p class="notice">Every book has been returned.</p><% } %>
+
+<h2>Members who never borrowed a book</h2>
+<% if (idleMembers.length) { %>
+<div class="scroll"><table>
+  <thead><tr><th>ID</th><th>Name</th><th>Email</th></tr></thead>
+  <tbody>
+    <% idleMembers.forEach(r => { %>
+      <tr><td><%= r.member_id %></td><td><%= r.name %></td><td><%= r.email %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<% } else { %><p class="notice">Every member has borrowed at least one book.</p><% } %>
+
+<h2>Books that were never borrowed</h2>
+<% if (idleBooks.length) { %>
+<div class="scroll"><table>
+  <thead><tr><th>ID</th><th>Title</th></tr></thead>
+  <tbody>
+    <% idleBooks.forEach(r => { %>
+      <tr><td><%= r.book_id %></td><td><%= r.title %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<% } else { %><p class="notice">Every book has been borrowed at least once.</p><% } %>
+<%- include('partials/footer') %>

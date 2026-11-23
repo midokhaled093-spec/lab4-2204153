@@ -1,0 +1,551 @@
+Lab 4 - Problem 1 answers (database: company)
+Ahmed Khaled Habib - 2204153
+Run on MySQL 8.0 after problem1_DDL.sql and problem1_DML.sql (fresh data).
+Output is exactly what the MySQL client printed (-t table format, statements echoed).
+==============================================================================
+
+-- Q1.1 INSERT (a) new employee + new project
+-- Employee 123456789 joins department 1; project 60 belongs to department 1.
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+INSERT INTO employee (ssn, fname, lname, bdate, address, gender, salary, super_ssn, Dno)
+VALUES ('123456789', 'Hossam', 'Nabil', '1994-08-17', 'Smouha, Alexandria', 'M', 4000.00, '111111111', 1)
+--------------
+
+--------------
+INSERT INTO project (Pnumber, Pname, Plocation, Dno)
+VALUES (60, 'Cloud Migration', 'Alexandria', 1)
+--------------
+
+--------------
+SELECT * FROM employee WHERE ssn = '123456789'
+--------------
+
++-----------+--------+-------+------------+--------------------+--------+---------+-----------+-----+
+| ssn       | fname  | lname | bdate      | address            | gender | salary  | super_ssn | Dno |
++-----------+--------+-------+------------+--------------------+--------+---------+-----------+-----+
+| 123456789 | Hossam | Nabil | 1994-08-17 | Smouha, Alexandria | M      | 4000.00 | 111111111 |   1 |
++-----------+--------+-------+------------+--------------------+--------+---------+-----------+-----+
+--------------
+SELECT * FROM project WHERE Pnumber = 60
+--------------
+
++---------+-----------------+------------+-----+
+| Pnumber | Pname           | Plocation  | Dno |
++---------+-----------------+------------+-----+
+|      60 | Cloud Migration | Alexandria |   1 |
++---------+-----------------+------------+-----+
+
+==============================================================================
+
+-- Q1.1 INSERT (b) employee whose Dno does not exist
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+INSERT INTO employee (ssn, fname, lname, bdate, address, gender, salary, super_ssn, Dno)
+VALUES ('987654321', 'Test', 'User', '1999-01-01', 'Cairo', 'M', 3000.00, NULL, 99)
+--------------
+
+
+ERROR 1452 (23000) at line 1: Cannot add or update a child row: a foreign key constraint fails (`company`.`employee`, CONSTRAINT `employee_ibfk_2` FOREIGN KEY (`Dno`) REFERENCES `department` (`Dnumber`))
+
+ANSWER: The INSERT is rejected: employee.Dno is a foreign key to department.Dnumber, and there is no department 99, so MySQL refuses the row (error 1452) and nothing is inserted.
+
+==============================================================================
+
+-- Q1.2 UPDATE (a) 10% raise for department 2
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT ssn, fname, salary FROM employee WHERE Dno = 2
+--------------
+
++-----------+---------+---------+
+| ssn       | fname   | salary  |
++-----------+---------+---------+
+| 444444444 | Nour    | 4800.00 |
+| 555555555 | Youssef | 2800.00 |
+| 999999999 | Hany    | 2500.00 |
++-----------+---------+---------+
+--------------
+UPDATE employee SET salary = salary * 1.10 WHERE Dno = 2
+--------------
+
+--------------
+SELECT ssn, fname, salary FROM employee WHERE Dno = 2
+--------------
+
++-----------+---------+---------+
+| ssn       | fname   | salary  |
++-----------+---------+---------+
+| 444444444 | Nour    | 5280.00 |
+| 555555555 | Youssef | 3080.00 |
+| 999999999 | Hany    | 2750.00 |
++-----------+---------+---------+
+
+==============================================================================
+
+-- Q1.2 UPDATE (b) change the location of project 20
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+UPDATE project SET Plocation = 'Giza' WHERE Pnumber = 20
+--------------
+
+--------------
+SELECT * FROM project WHERE Pnumber = 20
+--------------
+
++---------+-----------------+-----------+-----+
+| Pnumber | Pname           | Plocation | Dno |
++---------+-----------------+-----------+-----+
+|      20 | Network Upgrade | Giza      |   1 |
++---------+-----------------+-----------+-----+
+
+==============================================================================
+
+-- Q1.2 UPDATE (c) move an employee to a department that does not exist
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+UPDATE employee SET Dno = 99 WHERE ssn = '555555555'
+--------------
+
+
+ERROR 1452 (23000) at line 1: Cannot add or update a child row: a foreign key constraint fails (`company`.`employee`, CONSTRAINT `employee_ibfk_2` FOREIGN KEY (`Dno`) REFERENCES `department` (`Dnumber`))
+
+ANSWER: The UPDATE is rejected with a foreign key error (1452): department 99 does not exist, so the new value would break employee.Dno -> department.Dnumber. The row keeps its old Dno.
+
+==============================================================================
+
+-- Q1.3 DELETE (a) one dependent and one works_on row
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+DELETE FROM dependent WHERE essn = '222222222' AND dependent_name = 'Tamer Mostafa'
+--------------
+
+--------------
+DELETE FROM works_on WHERE essn = '333333333' AND Pno = 20
+--------------
+
+--------------
+SELECT * FROM dependent
+--------------
+
++-----------+----------------+--------+------------+--------------+
+| essn      | dependent_name | gender | bdate      | relationship |
++-----------+----------------+--------+------------+--------------+
+| 111111111 | Adam Hassan    | M      | 2018-07-21 | Son          |
+| 111111111 | Salma Hassan   | F      | 2015-03-12 | Daughter     |
+| 666666666 | Yara Ibrahim   | F      | 2012-09-05 | Daughter     |
++-----------+----------------+--------+------------+--------------+
+--------------
+SELECT * FROM works_on
+--------------
+
++-----------+-----+-------+
+| essn      | Pno | hours |
++-----------+-----+-------+
+| 111111111 |  10 |  20.0 |
+| 111111111 |  20 |  10.0 |
+| 222222222 |  10 |  15.0 |
+| 333333333 |  10 |  12.0 |
+| 444444444 |  30 |  25.0 |
+| 555555555 |  30 |  10.0 |
+| 666666666 |  40 |  18.0 |
+| 777777777 |  40 |   6.0 |
++-----------+-----+-------+
+
+==============================================================================
+
+-- Q1.3 DELETE (b) delete department 3 (it still has employees)
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+DELETE FROM department WHERE Dnumber = 3
+--------------
+
+
+ERROR 1451 (23000) at line 1: Cannot delete or update a parent row: a foreign key constraint fails (`company`.`employee`, CONSTRAINT `employee_ibfk_2` FOREIGN KEY (`Dno`) REFERENCES `department` (`Dnumber`))
+
+ANSWER: The DELETE is rejected (error 1451): employee.Dno and project.Dno still refer to department 3, and a parent row cannot be deleted while child rows point to it (the default is RESTRICT).
+
+==============================================================================
+
+-- Q1.3 DELETE (b, continued) the correct order, inside a transaction
+-- The removal is wrapped in START TRANSACTION ... ROLLBACK so the data stays intact for the next queries.
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+START TRANSACTION
+--------------
+
+--------------
+UPDATE department SET mgr_ssn = NULL, mgr_start_date = NULL WHERE Dnumber = 3
+--------------
+
+--------------
+DELETE FROM works_on  WHERE essn IN ('666666666','777777777') OR Pno IN (SELECT Pnumber FROM project WHERE Dno = 3)
+--------------
+
+--------------
+DELETE FROM dependent WHERE essn IN ('666666666','777777777')
+--------------
+
+--------------
+DELETE FROM project   WHERE Dno = 3
+--------------
+
+--------------
+DELETE FROM employee  WHERE ssn = '777777777'
+--------------
+
+--------------
+DELETE FROM employee  WHERE ssn = '666666666'
+--------------
+
+--------------
+DELETE FROM department WHERE Dnumber = 3
+--------------
+
+--------------
+SELECT * FROM department
+--------------
+
++---------+-------------+-----------+----------------+
+| Dnumber | Dname       | mgr_ssn   | mgr_start_date |
++---------+-------------+-----------+----------------+
+|       1 | Engineering | 111111111 | 2015-01-01     |
+|       2 | Research    | 444444444 | 2018-09-01     |
+|       4 | Marketing   | NULL      | NULL           |
++---------+-------------+-----------+----------------+
+--------------
+ROLLBACK
+--------------
+
+--------------
+SELECT * FROM department
+--------------
+
++---------+----------------+-----------+----------------+
+| Dnumber | Dname          | mgr_ssn   | mgr_start_date |
++---------+----------------+-----------+----------------+
+|       1 | Engineering    | 111111111 | 2015-01-01     |
+|       2 | Research       | 444444444 | 2018-09-01     |
+|       3 | Administration | 666666666 | 2012-03-15     |
+|       4 | Marketing      | NULL      | NULL           |
++---------+----------------+-----------+----------------+
+
+ANSWER: Order: (1) clear the manager of the department (department.mgr_ssn points to an employee); (2) delete the works_on rows and dependents of its employees, and the works_on rows of its projects; (3) delete its projects; (4) delete its employees, the supervised one (777777777) before his supervisor (666666666); (5) delete the department itself. Children first, parent last. ROLLBACK then undid everything, so department 3 is back.
+
+==============================================================================
+
+-- Q1.3 DELETE (c) DELETE without WHERE, then ROLLBACK
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+START TRANSACTION
+--------------
+
+--------------
+DELETE FROM dependent
+--------------
+
+--------------
+SELECT * FROM dependent
+--------------
+
+--------------
+ROLLBACK
+--------------
+
+--------------
+SELECT * FROM dependent
+--------------
+
++-----------+----------------+--------+------------+--------------+
+| essn      | dependent_name | gender | bdate      | relationship |
++-----------+----------------+--------+------------+--------------+
+| 111111111 | Adam Hassan    | M      | 2018-07-21 | Son          |
+| 111111111 | Salma Hassan   | F      | 2015-03-12 | Daughter     |
+| 666666666 | Yara Ibrahim   | F      | 2012-09-05 | Daughter     |
++-----------+----------------+--------+------------+--------------+
+
+ANSWER: A DELETE without WHERE removes every row of the table: SELECT returns no rows inside the transaction (the batch client prints nothing for an empty result). ROLLBACK cancels the transaction, so all the deleted rows come back.
+
+==============================================================================
+
+-- Q1.4 (a) employees earning 3000-6000 who live in Alexandria, highest salary first
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT fname, lname, salary
+FROM employee
+WHERE salary BETWEEN 3000 AND 6000 AND address LIKE '%Alexandria%'
+ORDER BY salary DESC
+--------------
+
++--------+--------+---------+
+| fname  | lname  | salary  |
++--------+--------+---------+
+| Ahmed  | Hassan | 5500.00 |
+| Nour   | Adel   | 5280.00 |
+| Hossam | Nabil  | 4000.00 |
+| Laila  | Essam  | 3900.00 |
+| Omar   | Fathy  | 3500.00 |
++--------+--------+---------+
+
+==============================================================================
+
+-- Q1.4 (b) employees with no supervisor
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT ssn, fname, lname FROM employee WHERE super_ssn IS NULL
+--------------
+
++-----------+-------+---------+
+| ssn       | fname | lname   |
++-----------+-------+---------+
+| 111111111 | Ahmed | Hassan  |
+| 666666666 | Mona  | Ibrahim |
++-----------+-------+---------+
+
+==============================================================================
+
+-- Q1.4 (c) department numbers that have at least one employee, once each
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT DISTINCT Dno FROM employee ORDER BY Dno
+--------------
+
++-----+
+| Dno |
++-----+
+|   1 |
+|   2 |
+|   3 |
++-----+
+
+==============================================================================
+
+-- Q1.5 aggregation over the whole company
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT COUNT(*) AS employees, SUM(salary) AS total_salary, AVG(salary) AS average_salary,
+       MIN(salary) AS smallest_salary, MAX(salary) AS largest_salary
+FROM employee
+--------------
+
++-----------+--------------+----------------+-----------------+----------------+
+| employees | total_salary | average_salary | smallest_salary | largest_salary |
++-----------+--------------+----------------+-----------------+----------------+
+|        10 |     42510.00 |    4251.000000 |         2750.00 |        7200.00 |
++-----------+--------------+----------------+-----------------+----------------+
+
+==============================================================================
+
+-- Q1.6 number of employees and average salary per department
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT Dno, COUNT(*) AS employees, AVG(salary) AS average_salary
+FROM employee
+GROUP BY Dno
+--------------
+
++-----+-----------+----------------+
+| Dno | employees | average_salary |
++-----+-----------+----------------+
+|   1 |         5 |    4220.000000 |
+|   2 |         3 |    3703.333333 |
+|   3 |         2 |    5150.000000 |
++-----+-----------+----------------+
+
+==============================================================================
+
+-- Q1.7 (a) departments with more than 2 employees
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT Dno, COUNT(*) AS employees
+FROM employee
+GROUP BY Dno
+HAVING COUNT(*) > 2
+--------------
+
++-----+-----------+
+| Dno | employees |
++-----+-----------+
+|   1 |         5 |
+|   2 |         3 |
++-----+-----------+
+
+==============================================================================
+
+-- Q1.7 (b) same, counting only employees with salary above 3000
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT Dno, COUNT(*) AS employees
+FROM employee
+WHERE salary > 3000
+GROUP BY Dno
+HAVING COUNT(*) > 2
+--------------
+
++-----+-----------+
+| Dno | employees |
++-----+-----------+
+|   1 |         5 |
++-----+-----------+
+
+ANSWER: WHERE filters single rows before the grouping and cannot use aggregate functions, while HAVING filters whole groups after the grouping and can use COUNT, SUM, AVG, and so on.
+
+==============================================================================
+
+-- Q1.8 JOIN: employee full name with department name
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT CONCAT(e.fname, ' ', e.lname) AS full_name, d.Dname
+FROM employee e JOIN department d ON e.Dno = d.Dnumber
+ORDER BY d.Dname, e.lname
+--------------
+
++---------------+----------------+
+| full_name     | Dname          |
++---------------+----------------+
+| Mona Ibrahim  | Administration |
+| Karim Tarek   | Administration |
+| Laila Essam   | Engineering    |
+| Omar Fathy    | Engineering    |
+| Ahmed Hassan  | Engineering    |
+| Sara Mostafa  | Engineering    |
+| Hossam Nabil  | Engineering    |
+| Nour Adel     | Research       |
+| Hany Salah    | Research       |
+| Youssef Samir | Research       |
++---------------+----------------+
+
+==============================================================================
+
+-- Q1.9 JOIN of three tables: employee, project, hours
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT e.lname, p.Pname, w.hours
+FROM works_on w
+JOIN employee e ON w.essn = e.ssn
+JOIN project  p ON w.Pno  = p.Pnumber
+ORDER BY p.Pname, e.lname
+--------------
+
++---------+-----------------+-------+
+| lname   | Pname           | hours |
++---------+-----------------+-------+
+| Adel    | Lab Research    |  25.0 |
+| Samir   | Lab Research    |  10.0 |
+| Hassan  | Network Upgrade |  10.0 |
+| Ibrahim | Payroll System  |  18.0 |
+| Tarek   | Payroll System  |   6.0 |
+| Fathy   | Smart Campus    |  12.0 |
+| Hassan  | Smart Campus    |  20.0 |
+| Mostafa | Smart Campus    |  15.0 |
++---------+-----------------+-------+
+
+==============================================================================
+
+-- Q1.10 (a) every department with its number of employees (including 0)
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT d.Dnumber, d.Dname, COUNT(e.ssn) AS employees
+FROM department d LEFT JOIN employee e ON e.Dno = d.Dnumber
+GROUP BY d.Dnumber, d.Dname
+ORDER BY d.Dnumber
+--------------
+
++---------+----------------+-----------+
+| Dnumber | Dname          | employees |
++---------+----------------+-----------+
+|       1 | Engineering    |         5 |
+|       2 | Research       |         3 |
+|       3 | Administration |         2 |
+|       4 | Marketing      |         0 |
++---------+----------------+-----------+
+
+ANSWER: COUNT(e.ssn) counts only the non-NULL values, so a department with no employee gets 0. COUNT(*) would give 1 for it, because the LEFT JOIN keeps one row with NULLs.
+
+==============================================================================
+
+-- Q1.10 (b) projects that nobody works on
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT p.Pnumber, p.Pname
+FROM project p LEFT JOIN works_on w ON w.Pno = p.Pnumber
+WHERE w.essn IS NULL
+--------------
+
++---------+-----------------+
+| Pnumber | Pname           |
++---------+-----------------+
+|      50 | Marketing Study |
+|      60 | Cloud Migration |
++---------+-----------------+
+
+==============================================================================
+
+-- Q1.11 self join: employee with the name of his or her supervisor
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT CONCAT(e.fname, ' ', e.lname) AS employee, CONCAT(s.fname, ' ', s.lname) AS supervisor
+FROM employee e LEFT JOIN employee s ON e.super_ssn = s.ssn
+ORDER BY e.lname
+--------------
+
++---------------+--------------+
+| employee      | supervisor   |
++---------------+--------------+
+| Nour Adel     | Sara Mostafa |
+| Laila Essam   | Ahmed Hassan |
+| Omar Fathy    | Ahmed Hassan |
+| Ahmed Hassan  | NULL         |
+| Mona Ibrahim  | NULL         |
+| Sara Mostafa  | Ahmed Hassan |
+| Hossam Nabil  | Ahmed Hassan |
+| Hany Salah    | Nour Adel    |
+| Youssef Samir | Sara Mostafa |
+| Karim Tarek   | Mona Ibrahim |
++---------------+--------------+
+
+ANSWER: LEFT JOIN is used so that the employees without a supervisor are still listed (supervisor = NULL). With a plain JOIN they would disappear.
+
+==============================================================================
+
+-- Q1.12 total hours per project, only projects above 20 hours, largest first
+------------------------------------------------------------------------------
+SQL and output (each statement is echoed between dashed lines, then its result):
+--------------
+SELECT p.Pname, SUM(w.hours) AS total_hours
+FROM project p JOIN works_on w ON w.Pno = p.Pnumber
+GROUP BY p.Pnumber, p.Pname
+HAVING SUM(w.hours) > 20
+ORDER BY total_hours DESC
+--------------
+
++----------------+-------------+
+| Pname          | total_hours |
++----------------+-------------+
+| Smart Campus   |        47.0 |
+| Lab Research   |        35.0 |
+| Payroll System |        24.0 |
++----------------+-------------+
+
+==============================================================================
